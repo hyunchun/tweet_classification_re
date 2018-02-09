@@ -1,0 +1,69 @@
+-1 This file contains 65 training sets including this line, both handwritten or straight from twitter
+1 I tried to alternate 'the' in the training set
+1 one's with 'the' are labeled 1 and one's with no 'the'
+-1 are labeled with -1
+1 therefore this line is labeled 1 because there is 'the' in the sentence / line; after training, the algorithm 
+-1 tests 35 different lines: handwritten or straight from twitter
+1 I wonder where is the food because I am hungry
+-1 I am hungry and she is also hungry and we are all hungry
+1 get some food in the refrigerator
+-1 I am hungry too
+1 the helmat and the bike
+-1 and hungry for food
+1 the cat is cute
+-1 I am full
+1 the restaurant is called tomukun 
+-1 I am full too
+1 it is snowing in the central campus
+-1 too bad it is not snowing in north campus
+1 the flower is beautiful
+-1 weather is good today
+1 the dog is cute too
+-1 I am not hungry
+1 it is snowing in the central campus
+-1 Hibachi-san sells some good food 
+1 remember to bring your computers to the next class
+-1 the school is tiring
+1 she wants to go to the lab
+-1 too bad it is not snowing in north campus
+1 the game was bad
+-1 this is an apple that is a book
+1 Why don't they sell pencils or pens in the ugli? Sad!
+-1 this is a room
+1 Today we’re launching Twitter premium APIs to kick off the next era of innovation for Twitter developers. 
+-1 I forgot to bring my tablet
+1 the
+-1 Thank you for reminding it to me
+1 you're welcome have a fun day and remember to bring back the book by sunday
+-1 and to finish everything
+1 the food was good
+-1 don't try to steal someone else's food
+1 the dog 
+-1 a tree
+1 Listen to sounds optimized for the #GalaxyNote8 from the new U Flex Headphones. Learn more: http://spr.ly/UFlex 
+-1 Roll call! Tell us where you’re tweeting from today. #PureMichiganChat
+1 The divestment movement calls for the support of the University of Michigan administration to divest from companies operating in Israel, on the behalf of Palestinians and in fear of human rights violations against them.
+-1 Gather your clan now— @Lineage2_Rev has arrived. Prepare for a 200-person battle in a massive open-world. ⚔ 
+1 This cat walked into my house the other day and just made himself at home!
+-1 For #TransWeek, we're celebrating inspiring transgender and gender 
+1 non-conforming builders of inclusive communities and businesses. Enjoy Bluetooth connectivity from a longer distance with the new U Flex Headphones. Learn more: http://spr.ly/UFlex 
+-1 U-M hired acclaimed Finnish architect Eero Saarinen to design a North Campus master plan in 1951. #UMich200
+1 Welcome to our Holiday & Winter Planning #PureMichiganChat! Remember to use #PureMichiganChat in your replies. Let the party begin!
+-1 Results of @umichsoftball photo shoot! #handsomeboy!
+1 Q3. The holidays are a great time to come together and celebrate traditions. #PureMichiganChat
+-1 .@CityofDetroit students could use these "sensors in a shoebox" to understand vehicle traffic and air quality data in their neighborhoods
+1 Very cool exhibit opens on North Campus today.  "Hidden Figures: When the Computer Wore a Skirt: NASA's Human Computers."
+-1 your cookie and this cookie with sparkles
+1 give him the choco cookie
+-1 A gravely ill young boy made a wish, and it came true.
+1 35 students from Cass Technical High School in Detroit came to the University of Michigan as part of the Doctors of Tomorrow initiative.
+-1 really good bread for lunch tomorrow
+1 spy two @UMich teams moving on to Finals of the student competition at @AccelerateMICH... Congrats Canopy & Thettle, and good luck! #accelerateMICH #GoBlue
+-1 this and that and this and that and this and with this and that and now stop and new this and new that and knew this and knew that
+1 Give them a hand! Five @umich students and alums honored on the @Forbes "30 Under 30" list http://myumi.ch/JY7zX 
+-1 This Week on Windows: #BlackFriday deal previews, Surface Book 2 launch, MINECON Earth info, and more.
+1 Not the greatest bacon roll this morning... Except I finally unlocked Batman Android in the @GooglePlay promotion. I'd unlocked Aquaman so often I was beginning to feel like a Pokémon Go collector with Magikarp! #JusticeLeague
+-1 Congresswoman Brenda Lawrence's chief of staff resigns after sexual harassment claims
+1 Finally, if you find these lessons useful, please share with your friends and let us know your thoughts in the comment section below.
+-1 Vintage Detroit motel sold, to be transformed into new micro-apartments
+1 Below is the list of 100 lessons to help you master the most common phrases, sentence structures and patterns in English. Each lesson includes audio and text.
