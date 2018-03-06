@@ -5,6 +5,7 @@ import sys
 import string
 import operator
 
+# hello
 # ----- simple Perceptron: using dynet ----- #
 # Name: Hyun A Chung
 
@@ -143,7 +144,7 @@ def main():
     # new computation graph
     dy.renew_cg()
 
-    word_inputs = [] u
+    word_inputs = []
     targets = []
     unique_vector = []
     network_input = []

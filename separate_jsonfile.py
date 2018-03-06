@@ -13,14 +13,14 @@ def main():
 
     category_list = []
     count = 0
-    while(count <= 500):
-        count += 50
+    while(count <= 1800):
+        count += 100
         inFile_count = 0
         outFile = open("%s" %(filename + str(count)), "w")
         for line in inFile:
             outFile.write(line)
             inFile_count += 1
-            if inFile_count == 50:
+            if inFile_count == 100:
                 break
 
 

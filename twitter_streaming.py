@@ -29,30 +29,37 @@ twitter = Twitter(auth=oauth)
 # Here we set it to stop after getting 1000 tweets. 
 # You don't have to set it to stop, but can continue running 
 # the Twitter API to collect data for days or even longer. 
-name = raw_input("Please enter name: ")
-tweet_count = int(raw_input("Please enter status counts: "))
+#name = raw_input("Please enter name: ")
+#tweet_count = int(raw_input("Please enter status counts: "))
 
-iterator = twitter.statuses.user_timeline(screen_name=name, count=tweet_count, exclude_replies=False)
+#iterator = twitter.statuses.user_timeline(screen_name=name, count=tweet_count, exclude_replies=False)
+id_entered = int(raw_input("id: "))
+#iterator = twitter.statuses.show(id=id_entered)
+
+twitter_stream = TwitterStream(auth=oauth)
+iterator = twitter_stream.statuses.show(id = id_entered)
+
 
 #iterator = twitter.statuses.user_timeline(screen_name=name, count=tweet_count)
 
 output_file = open("test.txt", "w")
 
-
+#tweet_count = 1000
 for tweet in iterator:
-    tweet_count -= 1
+    #print(tweet)
+    #tweet_count -= 1
     # Twitter Python Tool wraps the data returned by Twitter 
     # as a TwitterDictResponse object.
     # We convert it back to the JSON format to print/score
     output_file.write(json.dumps(tweet))
-    
-    output_file.write("\n \n")
+    print(json.dumps(tweet))    
+    output_file.write("\n")
     #print json.dumps(tweet)
     # The command below will do pretty printing for JSON data, try it out
     # print json.dumps(tweet, indent=4)
        
-    if tweet_count <= 0:
-        break
+    #if tweet_count <= 0:
+    #    break
 
 output_file.close()
 
