@@ -40,12 +40,10 @@ def main():
     line_count = 0
     for line in tweet_list:
         # read in json line (except: empty line, continue)
-        #try:
         tweet = json.dumps(line)
         tweet = json.loads(tweet)
         tweet = json.loads(tweet)
-        #except:
-        #    continue
+        
         try:
             type_label = tweet["type_label"]
             content_label = tweet["content_label"]
