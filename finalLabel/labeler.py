@@ -12,6 +12,9 @@ def labeler_json():
     filename = sys.argv[1]
     inFile = open("%s" %(filename), "r")
 
+    # type: 0: None, 1: News, 2: announcement-advertisement, 3: emergency, 4: quotes
+    # content: 0: URL/mentions only | 1: environmental | 2: business | 3: sports | 4: technology | 5: entertainments, 6: personal, 7: politics, 8: lifestyle
+    # lifestyle: location, lifestyle, home supplies, food, religion, trip, drinking & eatin
     type_label_list = []
     content_label_list = []
     
@@ -43,6 +46,7 @@ def labeler_json():
     
     # start labeling
     while (labeled_count < len(tweet_list)):
+        print(labeled_count)
         line = tweet_list[labeled_count]
         tweet = json.loads(line.strip())
         labeled_count += 1
