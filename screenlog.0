@@ -1,0 +1,10 @@
+[K[01;32mroot@Miyu[00m:[01;34m~/classification[00m# quit
+No command 'quit' found, did you mean:
+ Command 'quiz' from package 'bsdgames' (universe)
+ Command 'quilt' from package 'quilt' (universe)
+ Command 'luit' from package 'x11-utils' (main)
+ Command 'quot' from package 'quota' (main)
+ Command 'qgit' from package 'qgit' (universe)
+quit: command not found
+[01;32mroot@Miyu[00m:[01;34m~/classification[00m# exit
+exit
