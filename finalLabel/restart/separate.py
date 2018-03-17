@@ -13,7 +13,7 @@ def main():
 
     category_list = []
     count = 0
-    while(count <= 1900):
+    while(count <= 2000):
         count += 200
         inFile_count = 0
         outFile = open("%s" %(filename + str(count)), "w")
