@@ -14,6 +14,8 @@ def labeler_json():
 
     # type: 0: None, 1: News, 2: announcement-advertisement, 3: emergency, 4: quotes
     # content: 0: URL/mentions only, 1: environmental, 2: business, 3: sports, 4: technology, 5: entertainments, 6: personal, 7: politics, 8: lifestyle
+    # lifestyle: lifestyle, location, religion, events, food, home improvement 
+    
     type_label_list = []
     content_label_list = []
     
