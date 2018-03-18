@@ -53,7 +53,8 @@ def extract_from_json(inFile):
     return textSet, contentLabelSet, typeLabelSet, unique_content, unique_type
 
 def label_separator(label_to_separate, text_set, content_label_set, type_label_set):
-    majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label = []
+    majority = majority_content_label = majority_type_label = []
+    minority = minority_content_label = minority_type_label = []
     if label_to_separate == "type":
         count = 0
         for line in text_set:
@@ -65,6 +66,7 @@ def label_separator(label_to_separate, text_set, content_label_set, type_label_s
                 minority.append(text_set[count])
                 minority_content_label.append(content_label_set[count])
                 minority_type_label.append(type_label_set[count])
+            count += 1
 
     return majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label
 
@@ -72,7 +74,9 @@ def extract_dictionary(dataset, word_dict):
     index = 0
     for line in dataset:
         # line = line.split()
+        print(line)
         for word in line:
+            print(word)
             # just word itself 
             if word not in word_dict:
                 word_dict[word] = index
@@ -167,7 +171,7 @@ def main():
     X_train = majority + minority_u_text
     y_train_content = majority_content_label + minority_u_content_label
     y_train_type = majority_type_label + minority_u_type_label
- 
+    print(len(X_train)) 
     word_dict = {}
     word_dict = extract_dictionary(X_train, word_dict)
     word_dict = extract_dictionary(test_text_set, word_dict)

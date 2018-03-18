@@ -134,7 +134,7 @@ def generate_feature_matrix(dataset, word_dict):
 def cv_performance(clf, X, y, k=2, metric="accuracy"):
     scores = []
 
-    skf = StratifiedKFold(n_splits=5, shuffle=True)
+    skf = StratifiedKFold(n_splits=2, shuffle=True)
 
     for train_index, test_index in skf.split(X, y):
         #print(X.shape)
@@ -191,8 +191,9 @@ def main():
     print("OneVsRestClassifier: content_label")
     print("\tlinear SVC")
     for i in range(0, 5):
-        c = np.random.uniform(-3, 3)
+        c = np.random.uniform(-1, 2)
         c = 10 ** c
+        print(c)
     	svc_i = OneVsRestClassifier(SVC(kernel = 'linear', C = c, class_weight = 'balanced'))
 	score = cv_performance(svc_i, train_feature_matrix, train_content_label, 2, "accuracy")
 	print("\t\tcurrent c: ", c, ", performance: ", score)
