@@ -42,7 +42,7 @@ def extract_from_json(inFile):
 
     for line in inFile:
         line = json.loads(line.strip())
-        textSet.append(line["text"])
+        textSet.append(line["text"].split())
         contentLabelSet.append(int(line["content_label"]))
         if int(line["content_label"]) not in unique_content:
             unique_content.append(int(line["content_label"]))
@@ -52,24 +52,26 @@ def extract_from_json(inFile):
 
     return textSet, contentLabelSet, typeLabelSet, unique_content, unique_type
 
-def label_separator(label_to_separate, text_set, content_label_set):
-    majority, majority_label, minority, minority_label = []
+def label_separator(label_to_separate, text_set, content_label_set, type_label_set):
+    majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label = []
     if label_to_separate == "type":
         count = 0
         for line in text_set:
             if content_label_set[count] == 0:
                 majority.append(text_set[count])
-                majority_label.append(content_label_set[count])
+                majority_content_label.append(content_label_set[count])
+                majority_type_label.append(type_label_set[count])
             else: 
                 minority.append(text_set[count])
-                minority_label.append(content_label_set[count])
+                minority_content_label.append(content_label_set[count])
+                minority_type_label.append(type_label_set[count])
 
-    return majority, majority_label, minority, minority_label
+    return majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label
 
 def extract_dictionary(dataset, word_dict):
     index = 0
     for line in dataset:
-        line = line.split()
+        # line = line.split()
         for word in line:
             # just word itself 
             if word not in word_dict:
@@ -105,7 +107,7 @@ def generate_feature_matrix(dataset, word_dict):
     train_dict = {}
     line_count = 0
     for line in dataset:
-        line = line.split()
+        # line = line.split()
         for word in line:
             # check if RT
             if word == "RT":
@@ -157,55 +159,60 @@ def main():
     test_text_set, test_content_label_set, test_type_label_set, _, _ = extract_from_json(test_file)
     
     # content
-    # majority, majority_label, minority, minority_label = label_separator("type", train_text_set, train_content_label_set)
+    majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label = label_separator("type", train_text_set, train_content_label_set, train_type_label_set)
 
     # resample minority and majority classes
-    # majority_dwsampled, majority_dwsampled_label = resample(majority, majority_label, replace=False, n_samples=int(len(minority)/3), random_state=123)
+    minority_u_text, minority_u_content_label, minority_u_type_label = resample(minority, minority_content_label, minority_type_label, replace=True, n_samples=int(len(majority) * 3), random_state=123)
 
-    #resampled_train_text_set = minority + majority_dwsampled
-    #resampled_train_type_label_set = minority_label + majority_dwsampled_label
-    
+    X_train = majority + minority_u_text
+    y_train_content = majority_content_label + minority_u_content_label
+    y_train_type = majority_type_label + minority_u_type_label
+ 
     word_dict = {}
-    word_dict = extract_dictionary(train_text_set, word_dict)
+    word_dict = extract_dictionary(X_train, word_dict)
     word_dict = extract_dictionary(test_text_set, word_dict)
 
-    train_feature_matrix = generate_feature_matrix(train_text_set, word_dict)
+    train_feature_matrix = generate_feature_matrix(X_train, word_dict)
     test_feature_matrix = generate_feature_matrix(test_text_set, word_dict)
 
     features_total = len(train_feature_matrix[0])
     para_collec = dy.ParameterCollection()
     pW1 = para_collec.add_parameters((450, 100), dy.NormalInitializer())
     pBias1 = para_collec.add_parameters((450), dy.ConstInitializer(0))
-    pW2_content = para_collec.add_parameters((100, 450), dy.NormalInitializer())
+    pW2_content = para_collec.add_parameters((100, 200), dy.NormalInitializer())
     pBias2_content = para_collec.add_parameters((100), dy.ConstInitializer(0))
     pW3_content = para_collec.add_parameters((len(unique_content), 100), dy.NormalInitializer())
     pBias3_content = para_collec.add_parameters((len(unique_content)), dy.ConstInitializer(0))
-    pW2_type = para_collec.add_parameters((100, 450), dy.NormalInitializer())
+    pW2_type = para_collec.add_parameters((100, 200), dy.NormalInitializer())
     pBias2_type = para_collec.add_parameters((100), dy.ConstInitializer(0))
     pW3_type = para_collec.add_parameters((len(unique_type), 100), dy.NormalInitializer())
     pBias3_type = para_collec.add_parameters((len(unique_type)), dy.ConstInitializer(0))
     lookup = para_collec.add_lookup_parameters((features_total, 100), dy.NormalInitializer())
-
-    w1 = dy.parameter(pW1)
-    bias1 = dy.parameter(pBias1)
-    w2_content = dy.parameter(pW2_content)
-    bias2_content = dy.parameter(pBias2_content)
-    w3_content = dy.parameter(pW3_content)
-    bias3_content = dy.parameter(pBias3_content)
-    w2_type = dy.parameter(pW2_type)
-    bias2_type = dy.parameter(pBias2_type)
-    w3_type = dy.parameter(pW3_type)
-    bias3_type = dy.parameter(pBias3_type)
+    pw_cnn1 = para_collec.add_parameters((5, 5, 450, 200), dy.NormalInitializer())
+    pb_cnn1 = para_collec.add_parameters((200), dy.ConstInitializer(0))
 
     trainer = dy.SimpleSGDTrainer(para_collec)
 
     for i in range(0, 2):
         for index in range(0, len(train_feature_matrix)):
         #for index in range(0, 500):
-            # x = dy.inputTensor(train_feature_matrix[index])
+
+            w1 = dy.parameter(pW1)
+            bias1 = dy.parameter(pBias1)
+            w2_content = dy.parameter(pW2_content)
+            bias2_content = dy.parameter(pBias2_content)
+            w3_content = dy.parameter(pW3_content)
+            bias3_content = dy.parameter(pBias3_content)
+            w2_type = dy.parameter(pW2_type)
+            bias2_type = dy.parameter(pBias2_type)
+            w3_type = dy.parameter(pW3_type)
+            bias3_type = dy.parameter(pBias3_type)
+            w_cnn1 = dy.parameter(pw_cnn1)
+            b_cnn1 = dy.parameter(pb_cnn1)
             
             input_text = []
-            line = train_text_set[index].split()
+            line = train_text_set[index]
+
             for word in line:
                 # check if RT
                 if word == "RT":
@@ -242,13 +249,19 @@ def main():
             e_in = dy.sum_dim(x, [1])/features_total
             e_affin1 = dy.affine_transform([bias1, w1, e_in])
             e_affin1 = dy.rectify(e_affin1)
-            e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_affin1])
+            e_conv2d = dy.conv2d_bias(e_affin1, w_cnn1, b_cnn1, stride=(2, 2), is_valid=False)
+            print(e_conv2d.npvalue().shape)
+            e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_conv2d])
+            e_content_affin2 = dy.dropout(e_content_affin2, 0.5)
             e_content_affin2 = dy.rectify(e_content_affin2)
             e_content_affin3 = dy.affine_transform([bias3_content, w3_content, e_content_affin2])
+            e_content_affin3 = dy.dropout(e_content_affin3, 0.5)
             e_content_affin3 = dy.rectify(e_content_affin3)
             e_type_affin2 = dy.affine_transform([bias2_type, w2_type, e_affin1])
+            e_type_affin2 = dy.dropout(e_type_affin2, 0.5)
             e_type_affin2 = dy.rectify(e_type_affin2)
             e_type_affin3 = dy.affine_transform([bias3_type, w3_type, e_type_affin2])
+            e_type_affin3 = dy.dropout(e_type_affin3, 0.5)
             e_type_affin3 = dy.rectify(e_type_affin3)
             content_output = dy.pickneglogsoftmax(e_content_affin3, train_content_label_set[index])
             content_loss = content_output.scalar_value()
@@ -268,11 +281,25 @@ def main():
     print("testing...")
     pred_content = []
     pred_type = []
+
+    w1 = dy.parameter(pW1)
+    bias1 = dy.parameter(pBias1)
+    w2_content = dy.parameter(pW2_content)
+    bias2_content = dy.parameter(pBias2_content)
+    w3_content = dy.parameter(pW3_content)
+    bias3_content = dy.parameter(pBias3_content)
+    w2_type = dy.parameter(pW2_type)
+    bias2_type = dy.parameter(pBias2_type)
+    w3_type = dy.parameter(pW3_type)
+    bias3_type = dy.parameter(pBias3_type)
+    w_cnn1 = dy.parameter(pw_cnn1)
+    b_cnn1 = dy.parameter(pb_cnn1)
+
     for index in range(0, len(test_feature_matrix)):
         # x = dy.inputTensor(test_feature_matrix[index])
        
         input_text = []
-        line = train_text_set[index].split()
+        line = train_text_set[index]
         for word in line:
             # check if RT
             if word == "RT":
@@ -292,21 +319,20 @@ def main():
             try: 
                 # lower capiticalization of the word
                 lower_word = str(word).lower()
-                if lower_word in word_dict:
-                    input_text.append(lookup[word_dict[lower_word]])
+                input_text.append(lookup[word_dict[lower_word]])
                 # no punctuation 
                 replace_punctuation = str(word).maketrans(string.punctuation, '')
                 clean_word = str(word).translate(replace_punctuation)
-
-                if clean_word in word_dict:
-                    input_text.append(lookup[word_dict[clean_word]])
+                input_text.append(lookup[word_dict[clean_word]])
             except:
                 continue
 
         e_in = dy.sum_dim(x, [1])/features_total
         e_affin1 = dy.affine_transform([bias1, w1, e_in])
         e_affin1 = dy.rectify(e_affin1)
-        e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_affin1])
+        e_conv2d = dy.conv2d_bias(e_affin1, w_cnn1, b_cnn1, stride=(2, 2), is_valid=False)
+        print(e_conv2d.npvalue().shape)
+        e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_conv2d])
         e_content_affin2 = dy.rectify(e_content_affin2)
         e_content_affin3 = dy.affine_transform([bias3_content, w3_content, e_content_affin2])
         e_content_affin3 = dy.rectify(e_content_affin3)
