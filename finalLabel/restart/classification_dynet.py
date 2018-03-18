@@ -162,24 +162,23 @@ def main():
     train_text_set, train_content_label_set, train_type_label_set, unique_content, unique_type = extract_from_json(train_file)
     test_text_set, test_content_label_set, test_type_label_set, _, _ = extract_from_json(test_file)
     
-    # content
-    majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label = label_separator("type", train_text_set, train_content_label_set, train_type_label_set)
+
+    word_dict = {}
+    word_dict = extract_dictionary(train_text_set, word_dict)
+    word_dict = extract_dictionary(test_text_set, word_dict)
+
+    train_feature_matrix = generate_feature_matrix(train_text_set, word_dict)
+    test_feature_matrix = generate_feature_matrix(test_text_set, word_dict)
 
     # resample minority and majority classes
+    majority, majority_content_label, majority_type_label, minority, minority_content_label, minority_type_label = label_separator("type", train_feature_matrix, train_content_label_set, train_type_label_set)
     minority_u_text, minority_u_content_label, minority_u_type_label = resample(minority, minority_content_label, minority_type_label, replace=True, n_samples=int(len(majority) * 3), random_state=123)
 
     X_train = majority + minority_u_text
     y_train_content = majority_content_label + minority_u_content_label
     y_train_type = majority_type_label + minority_u_type_label
-    print(len(X_train)) 
-    word_dict = {}
-    word_dict = extract_dictionary(X_train, word_dict)
-    word_dict = extract_dictionary(test_text_set, word_dict)
 
-    train_feature_matrix = generate_feature_matrix(X_train, word_dict)
-    test_feature_matrix = generate_feature_matrix(test_text_set, word_dict)
-
-    features_total = len(train_feature_matrix[0])
+    features_total = len(X_train[0])
     para_collec = dy.ParameterCollection()
     pW1 = para_collec.add_parameters((450, 100), dy.NormalInitializer())
     pBias1 = para_collec.add_parameters((450), dy.ConstInitializer(0))
@@ -198,7 +197,7 @@ def main():
     trainer = dy.SimpleSGDTrainer(para_collec)
 
     for i in range(0, 2):
-        for index in range(0, len(train_feature_matrix)):
+        for index in range(0, len(X_train)):
         #for index in range(0, 500):
 
             w1 = dy.parameter(pW1)
