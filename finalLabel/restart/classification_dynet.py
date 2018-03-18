@@ -1,3 +1,6 @@
+from __future__ import division
+from __future__ import print_function
+
 import pandas as pd
 import numpy as np
 import itertools
@@ -171,88 +174,102 @@ def main():
 
     features_total = len(train_feature_matrix[0])
     para_collec = dy.ParameterCollection()
-    pW1 = para_collec.add_parameters((450, features_total), dy.NormalInitializer())
-    pBias1 = para_collec.add_parameters((features_total), dy.ConstInitializer(0))
-    pW2_content = para_collec.add_parameters((len(unique_content), 450), dy.NormalInitializer())
-    pBias2_content = para_collec.add_parameters((len(unique_content)), dy.ConstInitializer(0))
-    pW2_type = para_collec.add_parameters((len(unique_type), 450), dy.NormalInitializer())
-    pBias2_type = para_collec.add_parameters((len(unique_type)), dy.ConstInitializer(0))
-    lookup = para_collec.add_lookup_parameters((features_total, 45), dy.NormalInitializer())
+    pW1 = para_collec.add_parameters((450, 100), dy.NormalInitializer())
+    pBias1 = para_collec.add_parameters((450), dy.ConstInitializer(0))
+    pW2_content = para_collec.add_parameters((100, 450), dy.NormalInitializer())
+    pBias2_content = para_collec.add_parameters((100), dy.ConstInitializer(0))
+    pW3_content = para_collec.add_parameters((len(unique_content), 100), dy.NormalInitializer())
+    pBias3_content = para_collec.add_parameters((len(unique_content)), dy.ConstInitializer(0))
+    pW2_type = para_collec.add_parameters((100, 450), dy.NormalInitializer())
+    pBias2_type = para_collec.add_parameters((100), dy.ConstInitializer(0))
+    pW3_type = para_collec.add_parameters((len(unique_type), 100), dy.NormalInitializer())
+    pBias3_type = para_collec.add_parameters((len(unique_type)), dy.ConstInitializer(0))
+    lookup = para_collec.add_lookup_parameters((features_total, 100), dy.NormalInitializer())
 
     w1 = dy.parameter(pW1)
     bias1 = dy.parameter(pBias1)
     w2_content = dy.parameter(pW2_content)
     bias2_content = dy.parameter(pBias2_content)
+    w3_content = dy.parameter(pW3_content)
+    bias3_content = dy.parameter(pBias3_content)
     w2_type = dy.parameter(pW2_type)
     bias2_type = dy.parameter(pBias2_type)
+    w3_type = dy.parameter(pW3_type)
+    bias3_type = dy.parameter(pBias3_type)
 
     trainer = dy.SimpleSGDTrainer(para_collec)
 
-    #for index in range(0, len(train_feature_matrix)):
-    for index in range(0, 100):
-        # x = dy.inputTensor(train_feature_matrix[index])
-        y_content = dy.scalarInput(train_content_label_set[index])
-        y_type = dy.scalarInput(train_type_label_set[index])
-        
-        input_text = []
-        line = train_text_set[index].split()
-        for word in line:
-            # check if RT
-            if word == "RT":
-                input_text.append(lookup[len(word_dict)])
-            # check if hashtag
-            if word[0] == "#":
-                input_text.append(lookup[len(word_dict) + 1])
+    for i in range(0, 2):
+        for index in range(0, len(train_feature_matrix)):
+        #for index in range(0, 500):
+            # x = dy.inputTensor(train_feature_matrix[index])
+            
+            input_text = []
+            line = train_text_set[index].split()
+            for word in line:
+                # check if RT
+                if word == "RT":
+                    input_text.append(lookup[len(word_dict)])
+                # check if hashtag
+                if word[0] == "#":
+                    input_text.append(lookup[len(word_dict) + 1])
 
-            # check if mention
-            if word[0] == "@":
-                input_text.append(lookup[len(word_dict) + 2])
+                # check if mention
+                if word[0] == "@":
+                    input_text.append(lookup[len(word_dict) + 2])
 
-            # just word itself 
-            if word in word_dict:
-                input_text.append(lookup[word_dict[word]])
+                # just word itself 
+                if word in word_dict:
+                    input_text.append(lookup[word_dict[word]])
 
-            try: 
-                # lower capiticalization of the word
-                lower_word = str(word).lower()
-                if lower_word in word_dict:
-                    input_text.append(lookup[word_dict[lower_word]])
-                # no punctuation 
-                replace_punctuation = str(word).maketrans(string.punctuation, '')
-                clean_word = str(word).translate(replace_punctuation)
+                try: 
+                    # lower capiticalization of the word
+                    lower_word = str(word).lower()
+                    if lower_word in word_dict:
+                        input_text.append(lookup[word_dict[lower_word]])
+                    # no punctuation 
+                    replace_punctuation = str(word).maketrans(string.punctuation, '')
+                    clean_word = str(word).translate(replace_punctuation)
 
-                if clean_word in word_dict:
-                    input_text.append(lookup[word_dict[clean_word]])
-            except:
-                continue
+                    if clean_word in word_dict:
+                        input_text.append(lookup[word_dict[clean_word]])
+                except:
+                    continue
 
-        e_in = dy.sum_elems(input_text)/features_total
-        e_affin1 = dy.affine_transform([bias1, w1, e_in])
-        e_affin1 = rectify(e_affin1)
-        e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_affin1])
-        e_type_affin2 = dy.affine_transform([bias2_type, w2_type, e_affin1])
-        content_output = dy.pickneglogsoftmax(e_content_affin2, y_content)
-        content_loss = content_output.scalar_value()
-        type_output = dy.pickneglogsoftmax(e_type_affin2, y_type)
-        type_loss = type_output.scalar_value()
-        
-        if (index > 0) and (index % 100 == 0):
-            print("content_loss: ", content_loss, "type_loss", type_loss)
-        
-        content_loss.backward()
-        trainer.update()
-        type_loss.backward()
-        trainer.update()
+            x = dy.concatenate(input_text, 1)
+            #print(x.npvalue().shape)
+            #print(dy.sum_dim(x, [1]).npvalue().shape)
+            e_in = dy.sum_dim(x, [1])/features_total
+            e_affin1 = dy.affine_transform([bias1, w1, e_in])
+            e_affin1 = dy.rectify(e_affin1)
+            e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_affin1])
+            e_content_affin2 = dy.rectify(e_content_affin2)
+            e_content_affin3 = dy.affine_transform([bias3_content, w3_content, e_content_affin2])
+            e_content_affin3 = dy.rectify(e_content_affin3)
+            e_type_affin2 = dy.affine_transform([bias2_type, w2_type, e_affin1])
+            e_type_affin2 = dy.rectify(e_type_affin2)
+            e_type_affin3 = dy.affine_transform([bias3_type, w3_type, e_type_affin2])
+            e_type_affin3 = dy.rectify(e_type_affin3)
+            content_output = dy.pickneglogsoftmax(e_content_affin3, train_content_label_set[index])
+            content_loss = content_output.scalar_value()
+            type_output = dy.pickneglogsoftmax(e_type_affin3, train_type_label_set[index])
+            type_loss = type_output.scalar_value()
+            
+            if index % 100 == 0:
+                print("content_loss: ", content_loss, "type_loss", type_loss)
+            
+            content_output.backward()
+            trainer.update()
+            type_output.backward()
+            trainer.update()
 
-        dy.cg_checkpoint()
+            dy.cg_checkpoint()
 
     print("testing...")
     pred_content = []
     pred_type = []
     for index in range(0, len(test_feature_matrix)):
         # x = dy.inputTensor(test_feature_matrix[index])
-        y_content = dy.scalarInput(test_content_label_set[index])
-        y_type = dy.scalarInput(test_type_label_set[index])
        
         input_text = []
         line = train_text_set[index].split()
@@ -286,27 +303,33 @@ def main():
             except:
                 continue
 
-        e_in = dy.sum_elems(input_text)/features_total
+        e_in = dy.sum_dim(x, [1])/features_total
         e_affin1 = dy.affine_transform([bias1, w1, e_in])
-        e_affin1 = rectify(e_affin1)
+        e_affin1 = dy.rectify(e_affin1)
         e_content_affin2 = dy.affine_transform([bias2_content, w2_content, e_affin1])
+        e_content_affin2 = dy.rectify(e_content_affin2)
+        e_content_affin3 = dy.affine_transform([bias3_content, w3_content, e_content_affin2])
+        e_content_affin3 = dy.rectify(e_content_affin3)
         e_type_affin2 = dy.affine_transform([bias2_type, w2_type, e_affin1])
-        content_output = np.argmax(e_content_affin2.npvalue())
+        e_type_affin2 = dy.rectify(e_type_affin2)
+        e_type_affin3 = dy.affine_transform([bias3_type, w3_type, e_type_affin2])
+        e_type_affin3 = dy.rectify(e_type_affin3)
+        content_output = np.argmax(e_content_affin3.npvalue())
         pred_content.append(content_output)
-        # content_loss = content_output.scalar_value()
-        type_output = np.argmax(e_type_affin2.npvalue())
+        type_output = np.argmax(e_type_affin3.npvalue())
         pred_type.append(type_output)
-        # type_loss = type_output.scalar_value()
 
     misclassification_content = 0
     misclassification_type = 0
     for index in range(0, len(pred_content)):
+        #print(pred_content[index], test_content_label_set[index])
         if pred_content[index] != test_content_label_set[index]:
-        misclassification_content += 1
+            misclassification_content += 1
         if pred_type[index] != test_type_label_set[index]:
-        misclassification_type += 1
-    print("content acc: ", misclassification_content/len(pred_content))
-    print("type acc: ", misclassification_type/len(pred_type))
+            misclassification_type += 1
+    
+    print("content acc: ", (1 - float(misclassification_content/len(pred_content))))
+    print("type acc: ", (1 - float(misclassification_type/len(pred_type))))
 
 # ----------------------------------------------------------
 

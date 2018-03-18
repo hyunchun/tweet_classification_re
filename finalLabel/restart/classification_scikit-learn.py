@@ -134,11 +134,11 @@ def generate_feature_matrix(dataset, word_dict):
 def cv_performance(clf, X, y, k=2, metric="accuracy"):
     scores = []
 
-    skf = StratifiedKFold(n_splits=2, shuffle=False)
+    skf = StratifiedKFold(n_splits=5, shuffle=True)
 
     for train_index, test_index in skf.split(X, y):
-        print(X.shape)
-        print(y.shape)
+        #print(X.shape)
+        #print(y.shape)
         #print("X: ", X)
         #print("y: ", y)
         #print("train_index: ", train_index)
@@ -184,16 +184,19 @@ def main():
     train_feature_matrix = generate_feature_matrix(train_text_set, word_dict)
     # test_feature_matrix = generate_feature_matrix(test_text_set, word_dict)
 
-    c_range = [10**(-3), 10**(-2), 10**(-1), 10**(0), 10**(1), 10**(2), 10**(3)]
-    """
+    #c_range = [10**(-3), 10**(-2), 10**(-1), 10**(0), 10**(1), 10**(2), 10**(3)]
+    c_range = [10**(-1), 10**(0), 10**(1), 10**(2)]
+    
     #print(train_feature_matrix)
     print("OneVsRestClassifier: content_label")
     print("\tlinear SVC")
-    for c in c_range:
+    for i in range(0, 5):
+        c = np.random.uniform(-3, 3)
+        c = 10 ** c
     	svc_i = OneVsRestClassifier(SVC(kernel = 'linear', C = c, class_weight = 'balanced'))
 	score = cv_performance(svc_i, train_feature_matrix, train_content_label, 2, "accuracy")
 	print("\t\tcurrent c: ", c, ", performance: ", score)
-
+    """
     print("\tlinear SVC with l1 loss")
     for c in c_range:
 	svc_i = OneVsRestClassifier(LinearSVC(penalty='l1', loss='squared_hinge', dual=False, C=c, class_weight='balanced'))
@@ -208,7 +211,8 @@ def main():
 	    svc_i = OneVsRestClassifier(SVC(kernel='poly', degree=2, C=c, coef0=current_coef0, class_weight='balanced'))
 	    score = cv_performance(svc_i, train_feature_matrix, train_content_label, 2, "accuracy")
 	    print("\t\tcurrent c: ", c, ", current coef0: ", current_coef0, ", performance: ", score)
-
+    """
+    """
     print("OneVsOneClassifier: content_label")
     print("\tlinear SVC")
     for c in c_range:
@@ -221,7 +225,7 @@ def main():
 	svc_i = OneVsOneClassifier(LinearSVC(penalty='l1', loss='squared_hinge', dual=False, C=c, class_weight='balanced'))
 	score = cv_performance(svc_i, train_feature_matrix, train_content_label, 2, "accuracy")
 	print("\t\tcurrent c: ", c, ", performance: ", score)
-    """
+
     print("\tquadratic SVC")
     train_set_q = train_feature_matrix[0:1900]
     train_set_q_l = train_content_label[0:1900]
@@ -237,7 +241,9 @@ def main():
             y_pred = svc_i.predict(test_set_q)
             score = accuracy_score(test_set_q_l, y_pred)
 	    print("\t\tcurrent c: ", c, ", current coef0: ", current_coef0, ", performance: ", score)
-
+            if score < 0.35:
+                break
+    """
 # ----------------------------------------------------------
 
 if __name__ == '__main__':
