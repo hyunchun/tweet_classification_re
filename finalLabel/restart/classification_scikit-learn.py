@@ -134,7 +134,7 @@ def generate_feature_matrix(dataset, word_dict):
 def cv_performance(clf, X, y, k=2, metric="accuracy"):
     scores = []
 
-    skf = StratifiedKFold(n_splits=2, shuffle=True)
+    skf = StratifiedKFold(n_splits=k, shuffle=True)
 
     for train_index, test_index in skf.split(X, y):
         #print(X.shape)
@@ -167,7 +167,7 @@ def main():
     train_text_set, train_content_label_set, train_type_label_set = extract_from_json(train_file)
     # test_text_set, test_content_label_set, test_type_label_set = extract_from_json(test_file)
     train_content_label = np.asarray(train_content_label_set)
-	
+    train_type_label = np.asarray(train_type_label_set)
     # content
     #majority, majority_label, minority, minority_label = label_separator("content", train_text_set, train_content_label_set)
 
@@ -184,26 +184,27 @@ def main():
     train_feature_matrix = generate_feature_matrix(train_text_set, word_dict)
     # test_feature_matrix = generate_feature_matrix(test_text_set, word_dict)
 
-    #c_range = [10**(-3), 10**(-2), 10**(-1), 10**(0), 10**(1), 10**(2), 10**(3)]
     c_range = [10**(-1), 10**(0), 10**(1), 10**(2)]
+    #c_range = [10**(-1), 10**(0), 10**(1), 10**(2)]
     
     #print(train_feature_matrix)
     print("OneVsRestClassifier: content_label")
+    
     print("\tlinear SVC")
-    for i in range(0, 5):
-        c = np.random.uniform(-1, 2)
-        c = 10 ** c
-        print(c)
+    for c in c_range:
+        #c = np.random.uniform(-1, 1 )
+        #c = 10 ** c
+        #print(c)
     	svc_i = OneVsRestClassifier(SVC(kernel = 'linear', C = c, class_weight = 'balanced'))
-	score = cv_performance(svc_i, train_feature_matrix, train_content_label, 2, "accuracy")
+	score = cv_performance(svc_i, train_feature_matrix, train_type_label, 2, "accuracy")
 	print("\t\tcurrent c: ", c, ", performance: ", score)
-    """
+    
     print("\tlinear SVC with l1 loss")
     for c in c_range:
 	svc_i = OneVsRestClassifier(LinearSVC(penalty='l1', loss='squared_hinge', dual=False, C=c, class_weight='balanced'))
-        score = cv_performance(svc_i, train_feature_matrix, train_content_label, 2, "accuracy")
+        score = cv_performance(svc_i, train_feature_matrix, train_type_label, 5, "accuracy")
         print("\t\tcurrent c: ", c, ", performance: ", score)
-
+    """
     print("\tquadratic SVC")
     for i in range(0, 5):
         current_coef0 = np.random.uniform(-3, 3)
